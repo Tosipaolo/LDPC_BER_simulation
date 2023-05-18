@@ -1,13 +1,14 @@
 clear;
 close all;
 
-% Range EB/N0
-EbNo = 1:12;
-snr = EbNo(3)
-
 %Rate range
 %R = [1/4, ...];
-r = 5/6;
+r = 1/4;
+
+% Range EB/N0
+EbNo = 1:12;
+snr = -10;
+
 
 % LDPC configurations
 
