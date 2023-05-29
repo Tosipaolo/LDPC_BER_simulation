@@ -2,23 +2,38 @@ clear;
 close all;
 
 %Rate range
-R = [5/6];
-
+R = [2/5 5/6 9/10];
+% 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10.
 
 % Range EB/N0
-EbNo = [];
+
 
 figure();
-semilogy(1:0.5:12, berawgn(1:0.5:12, "psk", 2, "nondiff"));
+semilogy(-2:0.5:10.5, berawgn(-2:0.5:10.5, "psk", 2, "nondiff"));
+xlabel('Eb/N0 [dB]');
+ylabel('Probability of error');
 hold on;
+semilogy(ones(1,2)*(-1.59), [1 1e-6], '--', 'Color','black');
+drawnow;
 for r = R
-    semilogy(ones(1,2)*(2^(2*r)-1)/r, [1 1e-6], '--');
+    ebn0 = (2^(2*r)-1)/(2*r);
+
+    semilogy(ones(1,2)*10*log10(ebn0), [1 1e-6], '--');
     BER = [];
-    ebn0 = (2^(2*r)-1)/r;
+    EbNo = [];
+
+    ebn0 = ebn0 - 0.1;
+    
     while(isempty(BER) || BER(end) > 1e-6)
         fprintf(".");
-        EbNo = [EbNo ebn0];
-        snr = ebn0 * r;
+
+        snr = ebn0 *r;
+
+        snr_db = 10*log10(snr);
+        ebn0_db = 10*log10(ebn0);
+
+        EbNo = [EbNo ebn0_db];
+
         % LDPC configurations
         
         ParityMatrix = dvbs2ldpc(r);
@@ -55,7 +70,7 @@ for r = R
         PSK_mod = pskmod(encoded_bits,M,'InputType','bit','PlotConstellation', false);
         
         % AWGN Channel
-        NoisySignal = awgn(PSK_mod,snr);
+        NoisySignal = awgn(PSK_mod,snr_db);
         
         % PSK Demod
         PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr');
@@ -69,13 +84,15 @@ for r = R
         
         BER = [BER Numerrors/Numbits];
 
-        ebn0 = ebn0 + 0.01;
+        ebn0 = ebn0 + 0.1;
     
     end
 
-    semilogy(EbNo, BER);
+    semilogy(EbNo, BER, 'Marker','x');
+    fprintf("\n");
+    drawnow;
 end
-fprintf("\n");
+
 
 
 
