@@ -6,17 +6,18 @@ R = [5/6];
 
 
 % Range EB/N0
-EbNo = 2.5:0.1:3;
+EbNo = [];
 
 figure();
 semilogy(1:0.5:12, berawgn(1:0.5:12, "psk", 2, "nondiff"));
 hold on;
 for r = R
     semilogy(ones(1,2)*(2^(2*r)-1)/r, [1 1e-6], '--');
-     BER = [];
-    for ebn0 = EbNo
+    BER = [];
+    ebn0 = (2^(2*r)-1)/r;
+    while(isempty(BER) || BER(end) > 1e-6)
         fprintf(".");
-        
+        EbNo = [EbNo ebn0];
         snr = ebn0 * r;
         % LDPC configurations
         
@@ -67,6 +68,8 @@ for r = R
         Numerrors = sum(bitstosend ~= (decoded_bits < 0),"all");
         
         BER = [BER Numerrors/Numbits];
+
+        ebn0 = ebn0 + 0.01;
     
     end
 
