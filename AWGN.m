@@ -42,7 +42,7 @@ for r = R
     while(isempty(BER) || BER(end) > 1e-6)
         fprintf(".");
 
-        snr_db = limit_ebn0_db *r;
+        snr_db = limit_ebn0_db + 10*log10(r)+10*log10(log2(M));
 
         EbNo = [EbNo limit_ebn0_db];
 
