@@ -54,15 +54,15 @@ SNRaff=abs(fading)*sqrt(SNRlin);
 if (QAMsize==2)||(QAMsize==4)||(QAMsize==16)||...
         (QAMsize==64)||(QAMsize==32) 
     X = (0:QAMsize-1)';
-    h = qammod(X, QAMsize, "gray");
+    Constellation = qammod(X, QAMsize, "gray");
 elseif (QAMsize==8)
     X = (0:QAMsize-1)';
-    h = pskmod(X, QAMsize, 0,"gray");
+    Constellation = pskmod(X, QAMsize, 0,"gray");
 else
     error('the modulation size %d is not supported!',  QAMsize);
 end
-NormFactor = sqrt(QAMsize/sum(abs (h).^2));
-Constellation = NormFactor.*h;
+NormFactor = sqrt(QAMsize/sum(abs (Constellation).^2));
+Constellation = NormFactor.*Constellation;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 C1 = zeros(1,16);  % BPSK Gaussi Hermite
 C2 = zeros(16,16); % Two dimensional signals
