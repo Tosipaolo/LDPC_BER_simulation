@@ -2,41 +2,49 @@ clear;
 close all;
 
 %Rate range
-R = [2/5 5/6 9/10];
+R = [1/2 5/6 8/9 9/10];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10.
 
 % Range EB/N0
 
 % Modulation Constellation
+%   M = 2 -> BPSK
 M = 2;
-p = 1/M;
+
+ebn0_interval = -2:0.5:10.5;
 
 
+%% Transmission Limits
+% Uncoded BER
 figure();
-semilogy(-2:0.5:10.5, berawgn(-2:0.5:10.5, "psk", 2, "nondiff"));
+semilogy(ebn0_interval, berawgn(-2:0.5:10.5, "psk", 2, "nondiff"));
 xlabel('Eb/N0 [dB]');
 ylabel('Probability of error');
 hold on;
+
+% Ultimate Shannon limit, max capacity
 semilogy(ones(1,2)*(-1.59), [1 1e-6], '--', 'Color','black');
 drawnow;
-for r = R
-    ebn0 = (2^(4*r)-1)/(4*r);
 
-    semilogy(ones(1,2)*10*log10(ebn0), [1 1e-6], '--');
+%% Coded Transmission
+
+for r = R
+    
+    snr_interval = -6:0.1:10; % interval for the GetMaxCapacity interpolation
+    [limit_snr, limit_ebn0_db] = GetMaxCapacity(snr_interval, M, r)
+
+    semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--');
     BER = [];
     EbNo = [];
 
-    ebn0 = ebn0 - 0.1;
-    
+    limit_ebn0_db = limit_ebn0_db - 0.1;
+
     while(isempty(BER) || BER(end) > 1e-6)
         fprintf(".");
 
-        snr = ebn0 *r;
+        snr_db = limit_ebn0_db *r;
 
-        snr_db = 10*log10(snr);
-        ebn0_db = 10*log10(ebn0);
-
-        EbNo = [EbNo ebn0_db];
+        EbNo = [EbNo limit_ebn0_db];
 
         % LDPC configurations
         
@@ -61,7 +69,6 @@ for r = R
         
         %Modulation Order QAM
             % 2 -> BPSK
-        M = 2;
         
         %Block Lenght
         
@@ -88,7 +95,7 @@ for r = R
         
         BER = [BER Numerrors/Numbits];
 
-        ebn0 = ebn0 + 0.1;
+        limit_ebn0_db = limit_ebn0_db + 0.1;
     
     end
 
