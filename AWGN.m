@@ -31,13 +31,11 @@ drawnow;
 for r = R
     
     snr_interval = -6:0.1:10; % interval for the GetMaxCapacity interpolation
-    [limit_snr, limit_ebn0_db] = GetMaxCapacity(snr_interval, M, r)
-
+    [limit_snr, limit_ebn0_db] = GetMaxCapacity(snr_interval, M, r);
+    fprintf("RATE: %s, Eb/N0: %.3f dB\n", strtrim(rats(r)), limit_ebn0_db);
     semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--');
     BER = [];
     EbNo = [];
-
-    limit_ebn0_db = limit_ebn0_db - 0.1;
     
     % LDPC configurations
         
@@ -53,11 +51,12 @@ for r = R
     NumBlocks = ceil(Numbits/cfg_E.NumInformationBits);
     Numbits = cfg_E.NumInformationBits*NumBlocks;
 
+    snr_db = limit_snr - 0.01;
+
     while(isempty(BER) || BER(end) > 1e-6)
         fprintf(".");
 
-        snr_db = limit_ebn0_db + 10*log10(r)+10*log10(log2(M));
-
+        limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));
         EbNo = [EbNo limit_ebn0_db];
 
         
@@ -70,7 +69,7 @@ for r = R
         encoded_bits = ldpcEncode(bitstosend,cfg_E);
         
         % PSk Mod
-        PSK_mod = pskmod(encoded_bits,M,'InputType','bit','PlotConstellation', false);
+        PSK_mod = pskmod(encoded_bits,M);
         
         % AWGN Channel
         NoisySignal = awgn(PSK_mod,snr_db);
@@ -87,12 +86,13 @@ for r = R
         
         BER = [BER Numerrors/Numbits];
 
-        limit_ebn0_db = limit_ebn0_db + 0.1;
+        snr_db = snr_db + 0.1;
     
     end
 
     semilogy(EbNo, BER, 'Marker','x');
     fprintf("\n");
+    fprintf("End at %.3f dB\n", EbNo(end));
     drawnow;
 end
 
