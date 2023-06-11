@@ -38,6 +38,20 @@ for r = R
     EbNo = [];
 
     limit_ebn0_db = limit_ebn0_db - 0.1;
+    
+    % LDPC configurations
+        
+    ParityMatrix = dvbs2ldpc(r);
+    
+    cfg_E = ldpcEncoderConfig(ParityMatrix);
+    cfg_D = ldpcDecoderConfig(cfg_E);
+    
+    
+    % Iteration configurations
+    
+    Numbits = 1e6;
+    NumBlocks = ceil(Numbits/cfg_E.NumInformationBits);
+    Numbits = cfg_E.NumInformationBits*NumBlocks;
 
     while(isempty(BER) || BER(end) > 1e-6)
         fprintf(".");
@@ -46,33 +60,11 @@ for r = R
 
         EbNo = [EbNo limit_ebn0_db];
 
-        % LDPC configurations
-        
-        ParityMatrix = dvbs2ldpc(r);
-        
-        cfg_E = ldpcEncoderConfig(ParityMatrix);
-        cfg_D = ldpcDecoderConfig(cfg_E);
-        
-        
-        % Iteration configurations
-        
-        Numbits = 1e6;
-        NumBlocks = ceil(Numbits/cfg_E.NumInformationBits);
-        Numbits = cfg_E.NumInformationBits*NumBlocks;
         
         bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks);
         
         %bitstosend = ones(Numbits,1);
         max_iterations = 50;
-        
-        % Errors per iteration (?)
-        
-        %Modulation Order QAM
-            % 2 -> BPSK
-        
-        %Block Lenght
-        
-        %Infobits
         
         % Encoder LDPC
         encoded_bits = ldpcEncode(bitstosend,cfg_E);
