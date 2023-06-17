@@ -75,7 +75,7 @@ for r = R
         NoisySignal = awgn(PSK_mod,snr_db);
         
         % PSK Demod
-        PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr');
+        PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr','NoiseVariance',1/10^(snr_db/10));
         
         % Decoder LDPC
         decoded_bits = ldpcDecode(PSK_demod,cfg_D,max_iterations,"DecisionType","soft");
