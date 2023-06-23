@@ -2,25 +2,29 @@ clear;
 close all;
 
 %Rate range
-R = [1/2 5/6 8/9 9/10];
+R = [1/4 1/3 2/5 1/2 3/5 2/3 3/4 4/5 5/6 8/9 9/10];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10.
 
-% Range EB/N0
+%
 
 % Modulation Constellation
 %   M = 2 -> BPSK
 M = 4;
 
-ebn0_interval = -2:0.5:10.5;
+% Range EB/N0
+ebn0_interval = -2:0.5:12;
+EbN0_lowestBER = [];
 
 
 %% Transmission Limits
 % Uncoded BER
 figure();
-semilogy(ebn0_interval, berawgn(-2:0.5:10.5, "psk", 2, "nondiff"));
+semilogy(ebn0_interval, berawgn(ebn0_interval, "psk", 2, "nondiff"));
 xlabel('Eb/N0 [dB]');
 ylabel('Probability of error');
 hold on;
+
+uncoded_EbN0_lowestBER = interp1(berawgn(ebn0_interval, "psk", 2, "nondiff"),ebn0_interval, 1e-6);
 
 % Ultimate Shannon limit, max capacity
 semilogy(ones(1,2)*(-1.59), [1 1e-6], '--', 'Color','black');
@@ -69,7 +73,7 @@ for r = R
         encoded_bits = ldpcEncode(bitstosend,cfg_E);
         
         % PSk Mod
-        PSK_mod = pskmod(encoded_bits,M,pi/2,"bin");
+        PSK_mod = pskmod(encoded_bits,M,'InputType','bit');
         
         % AWGN Channel
         NoisySignal = awgn(PSK_mod,snr_db);
@@ -78,7 +82,7 @@ for r = R
         PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr','NoiseVariance',1/10^(snr_db/10));
         
         % Decoder LDPC
-        decoded_bits = ldpcDecode(PSK_demod,cfg_D,pi/2,max_iterations,"DecisionType","soft");
+        decoded_bits = ldpcDecode(PSK_demod,cfg_D,max_iterations,"DecisionType","soft");
         
         %% Performance eval
         
@@ -89,13 +93,27 @@ for r = R
         snr_db = snr_db + 0.1;
     
     end
-
+    
+    EbN0_lowestBER = [EbN0_lowestBER EbNo(end)];
     semilogy(EbNo, BER, 'Marker','x');
     fprintf("\n");
     fprintf("End at %.3f dB\n", EbNo(end));
     drawnow;
+
+
 end
 
+%% Coding gain at Pe=1e-6
+
+coding_Gain =  uncoded_EbN0_lowestBER - EbN0_lowestBER
+
+figure(Name="Coding Gain");
+scatter(R, coding_Gain,[], "filled", "o");
+grid on;
+xlabel('Coding Rate');
+ylabel('Coding Gain [dB]');
+xlim([0 1]);
+ylim([5 10]);
 
 
 
