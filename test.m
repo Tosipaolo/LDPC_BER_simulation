@@ -3,10 +3,10 @@ clear;
 
 
 
-snr = -6:0.1:5;
+snr = -6:0.1:15;
 C = zeros(size(snr));
 for i = 1:length(snr)
-    C(i) = QAMCapacity(snr(i),1,2);
+    C(i) = QAMCapacity(snr(i),1,4);
 end
 plot(snr, C);
 

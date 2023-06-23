@@ -9,7 +9,7 @@ R = [1/2 5/6 8/9 9/10];
 
 % Modulation Constellation
 %   M = 2 -> BPSK
-M = 2;
+M = 4;
 
 ebn0_interval = -2:0.5:10.5;
 
@@ -69,7 +69,7 @@ for r = R
         encoded_bits = ldpcEncode(bitstosend,cfg_E);
         
         % PSk Mod
-        PSK_mod = pskmod(encoded_bits,M);
+        PSK_mod = pskmod(encoded_bits,M,'InputType','bit');
         
         % AWGN Channel
         NoisySignal = awgn(PSK_mod,snr_db);

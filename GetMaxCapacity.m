@@ -9,9 +9,9 @@ for i = 1:length(snr)
 end
 
 
-min_snr = interp1(C, snr, rate);
+min_snr = interp1(C, snr, rate*log2(M));
 
-min_EbN0 = min_snr - 10 * log10(rate);
+min_EbN0 = min_snr - 10 * log10(rate*log2(M));
 
 end
 
