@@ -119,5 +119,7 @@ ylabel('Coding Gain [dB]');
 xlim([0 1]);
 ylim([5 10]);
 
+%% Net Coding Gain
 
+%NCG = 20*log10(erfcinv(2*BER_out)) - 20*log10(erfcinv(2*BER_in)) + 10*log10(R)
 
