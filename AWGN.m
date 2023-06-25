@@ -7,7 +7,7 @@ R = [1/4 1/3 2/5];
 %1/4 1/3 2/5 1/2 3/5 2/3 3/4 4/5 5/6 8/9 9/10
 
 %Plot colours (rainbow palette, 11 colours)
-colours = ["#ff0000" "#ff8700" "#ffd300" "#deff0a" "#a1ff0a" "#0aff99" "#0aefff" "#147df5" "#580aff" "#be0aff" "#571089"];
+colors = ["#ff0000" "#ff8700" "#ffd300" "#deff0a" "#a1ff0a" "#0aff99" "#0aefff" "#147df5" "#580aff" "#be0aff" "#571089"];
 
 % Modulation Constellation
 %   M = 2 -> BPSK
@@ -22,6 +22,7 @@ EbN0_lowestBER = [];
 % Uncoded BER
 figure();
 semilogy(ebn0_interval, berawgn(ebn0_interval, "psk", 2, "nondiff"));
+grid on;
 xlabel('Eb/N0 [dB]');
 ylabel('Probability of error');
 hold on;
@@ -34,13 +35,13 @@ drawnow;
 
 %% Coded Transmission
 
-i=1;
+color_index=1;
 for r = R
     
     snr_interval = -6:0.1:10; % interval for the GetMaxCapacity interpolation
     [limit_snr, limit_ebn0_db] = GetMaxCapacity(snr_interval, M, r);
     fprintf("RATE: %s, Eb/N0: %.3f dB\n", strtrim(rats(r)), limit_ebn0_db);
-    semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--', 'Color',colours(i));
+    semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--', 'Color',colors(color_index));
     BER = [];
     EbNo = [];
     
@@ -94,22 +95,27 @@ for r = R
         BER = [BER Numerrors/Numbits];
 
         snr_db = snr_db + 0.1;
+
     
     end
     
     EbN0_lowestBER = [EbN0_lowestBER EbNo(end)];
-    semilogy(EbNo, BER, 'Marker','x', 'Color', colours(i));
+    semilogy(EbNo, BER, 'Marker','x', 'Color', colors(color_index));
     fprintf("\n");
     fprintf("End at %.3f dB\n", EbNo(end));
     drawnow;
-    i = i+1;
+    color_index = color_index+1;
+
+    %NCG
+    Numerrors_in = sum( reshape(encoded_bits, []) ~= (reshape(PSK_demod, []) < 0));
+    BERin = [BER Numerrors_in/len(encoded_bits)]; %BERin number of errors in input at FEC decoder
 
 
 end
 
 %% Coding gain at Pe=1e-6
 
-coding_Gain =  uncoded_EbN0_lowestBER - EbN0_lowestBER
+coding_Gain =  uncoded_EbN0_lowestBER - EbN0_lowestBER;
 
 figure(Name="Coding Gain");
 scatter(R, coding_Gain,[], "filled", "o");
