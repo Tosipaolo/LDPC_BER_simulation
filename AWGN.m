@@ -7,7 +7,8 @@ R = [1/2, 5/6, 8/9, 9/10];
 %1/4 1/3 2/5 1/2 3/5 2/3 3/4 4/5 5/6 8/9 9/10
 
 %Plot colours (rainbow palette, 11 colours)
-colors = ["#ff0000" "#ff8700" "#ffd300" "#deff0a" "#a1ff0a" "#0aff99" "#0aefff" "#147df5" "#580aff" "#be0aff" "#571089"];
+%colors = ["#ff0000" "#ff8700" "#ffd300" "#deff0a" "#a1ff0a" "#0aff99" "#0aefff" "#147df5" "#580aff" "#be0aff" "#571089"];
+colors = jet(length(R));
 
 % Modulation Constellation
 %   M = 2 -> BPSK
@@ -17,7 +18,7 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-BERout = 1e-5;
+BERout = 1e-6;
 
 
 %% Transmission Limits
@@ -111,7 +112,7 @@ for r = R
     fprintf("\n");
     fprintf("End at %.3f dB\n", EbNo(end));
     drawnow;
-    color_index = color_index+1;
+    color_index = rem(color_index, length(colors)) +1;
 
     %NCG
     Numerrors_in = sum( encoded_bits ~= (PSK_demod < 0), 'all');
@@ -138,11 +139,11 @@ BERin = berawgn(EbN0_lowestBER,'psk', M, 'nondiff');
 
 NCG = 20*log10(erfcinv(2*BERout)) - 20*log10(erfcinv(2*BERin)) + 10*log10(R);
 figure(Name="Net Coding Gain");
-scatter(R, NCG,[], "filled", "o");
+
+scatter(R, NCG,[],jet(length(R)), "filled", "o");
+
 grid on;
 xlabel('Coding Rate');
 ylabel('Net Coding Gain [dB]');
 xlim([0 1]);
 ylim([5 10]);
-
-
