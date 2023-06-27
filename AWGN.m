@@ -2,7 +2,7 @@ clear;
 close all;
 
 %Rate range
-R = [1/4 1/3 2/5];
+R = [1/2, 5/6, 8/9, 9/10];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10. copy paste:
 %1/4 1/3 2/5 1/2 3/5 2/3 3/4 4/5 5/6 8/9 9/10
 
@@ -17,7 +17,7 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-BERout = 1e-6;
+BERout = 1e-5;
 
 
 %% Transmission Limits
@@ -94,9 +94,10 @@ for r = R
         %% Performance eval
         
         Numerrors = sum(bitstosend ~= (decoded_bits < 0),"all");
-        if(Numerrors == 0)
+        if (Numerrors == 0 && base_increment >= 1e-5)
             snr_db = snr_db - base_increment;
             base_increment = base_increment/10;
+            fprintf("\n");
         else
             BER = [BER Numerrors/prod(size(bitstosend),'all')];
             EbNo = [EbNo limit_ebn0_db];
