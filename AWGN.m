@@ -17,9 +17,7 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-base_increment = 0.1;
-
-BERout = 1e-13;
+BERout = 1e-6;
 
 
 %% Transmission Limits
@@ -48,6 +46,7 @@ for r = R
     semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--', 'Color',colors(color_index));
     BER = [];
     EbNo = [];
+    base_increment = 0.1;
     
     % LDPC configurations
         
@@ -69,14 +68,14 @@ for r = R
         fprintf(".");
 
         limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));
-        EbNo = [EbNo limit_ebn0_db];
+        
 
         
-        bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks);
+        bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks,"logical");
         
         %bitstosend = ones(Numbits,1);
         max_iterations = 50;
-        
+       
         % Encoder LDPC
         encoded_bits = ldpcEncode(bitstosend,cfg_E);
         
@@ -95,11 +94,12 @@ for r = R
         %% Performance eval
         
         Numerrors = sum(bitstosend ~= (decoded_bits < 0),"all");
-        if(BER == 0)
+        if(Numerrors == 0)
             snr_db = snr_db - base_increment;
             base_increment = base_increment/10;
         else
-            BER = [BER Numerrors/Numbits];
+            BER = [BER Numerrors/prod(size(bitstosend),'all')];
+            EbNo = [EbNo limit_ebn0_db];
         end
         snr_db = snr_db + base_increment;
         
@@ -113,8 +113,8 @@ for r = R
     color_index = color_index+1;
 
     %NCG
-    Numerrors_in = sum( reshape(encoded_bits, []) ~= (reshape(PSK_demod, []) < 0));
-    BERin = [BER Numerrors_in/len(encoded_bits)]; %BERin number of errors in input at FEC decoder
+    Numerrors_in = sum( encoded_bits ~= (PSK_demod < 0), 'all');
+    BERin = [BER Numerrors_in/prod(size(encoded_bits), 'all')]; %BERin number of errors in input at FEC decoder
 
 
 end
