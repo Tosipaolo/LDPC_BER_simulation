@@ -17,6 +17,10 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
+base_increment = 0.1;
+
+BERout = 1e-13;
+
 
 %% Transmission Limits
 % Uncoded BER
@@ -61,7 +65,7 @@ for r = R
 
     snr_db = limit_snr - 0.01;
 
-    while(isempty(BER) || BER(end) > 1e-6)
+    while(isempty(BER) || BER(end) > BERout)
         fprintf(".");
 
         limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));
@@ -91,12 +95,14 @@ for r = R
         %% Performance eval
         
         Numerrors = sum(bitstosend ~= (decoded_bits < 0),"all");
+        if(BER == 0)
+            snr_db = snr_db - base_increment;
+            base_increment = base_increment/10;
+        else
+            BER = [BER Numerrors/Numbits];
+        end
+        snr_db = snr_db + base_increment;
         
-        BER = [BER Numerrors/Numbits];
-
-        snr_db = snr_db + 0.1;
-
-    
     end
     
     EbN0_lowestBER = [EbN0_lowestBER EbNo(end)];
