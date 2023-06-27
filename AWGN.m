@@ -23,13 +23,13 @@ BERout = 1e-5;
 %% Transmission Limits
 % Uncoded BER
 figure();
-semilogy(ebn0_interval, berawgn(ebn0_interval, "psk", 2, "nondiff"));
+semilogy(ebn0_interval, berawgn(ebn0_interval, "psk", M, "nondiff"));
 grid on;
 xlabel('Eb/N0 [dB]');
 ylabel('Probability of error');
 hold on;
 
-uncoded_EbN0_lowestBER = interp1(berawgn(ebn0_interval, "psk", 2, "nondiff"),ebn0_interval, 1e-6);
+uncoded_EbN0_lowestBER = interp1(berawgn(ebn0_interval, "psk", M, "nondiff"),ebn0_interval, BERout);
 
 % Ultimate Shannon limit, max capacity
 semilogy(ones(1,2)*(-1.59), [1 1e-6], '--', 'Color','black');
@@ -134,5 +134,15 @@ ylim([5 10]);
 
 %% Net Coding Gain
 
-%NCG = 20*log10(erfcinv(2*BER_out)) - 20*log10(erfcinv(2*BER_in)) + 10*log10(R)
+BERin = berawgn(EbN0_lowestBER,'psk', M, 'nondiff');
+
+NCG = 20*log10(erfcinv(2*BERout)) - 20*log10(erfcinv(2*BERin)) + 10*log10(R);
+figure(Name="Net Coding Gain");
+scatter(R, NCG,[], "filled", "o");
+grid on;
+xlabel('Coding Rate');
+ylabel('Net Coding Gain [dB]');
+xlim([0 1]);
+ylim([5 10]);
+
 
