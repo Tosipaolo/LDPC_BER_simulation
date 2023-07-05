@@ -2,7 +2,7 @@ clear;
 close all;
 
 %Rate range
-R = [1/2, 5/6, 8/9, 9/10];
+R = [ 5/6, 8/9];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10. copy paste:
 %1/4 1/3 2/5 1/2 3/5 2/3 3/4 4/5 5/6 8/9 9/10
 
@@ -147,3 +147,18 @@ xlabel('Coding Rate');
 ylabel('Net Coding Gain [dB]');
 xlim([0 1]);
 ylim([5 10]);
+
+
+%% System Reach
+
+fiber_att = 0.2; %dB/Km
+
+figure(Name="Optical reach increase")
+
+scatter(R, coding_Gain./fiber_att,[], "filled", "o");
+grid on;
+xlabel('Coding Rate');
+ylabel('Reach increase [Km]');
+xlim([0 1]);
+ylim([25 50]);
+
