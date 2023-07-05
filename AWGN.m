@@ -18,7 +18,7 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-BERout = 1e-6;
+BERout = 1e-5;
 
 
 %% Transmission Limits
@@ -44,7 +44,7 @@ for r = R
     snr_interval = -6:0.1:10; % interval for the GetMaxCapacity interpolation
     [limit_snr, limit_ebn0_db] = GetMaxCapacity(snr_interval, M, r);
     fprintf("RATE: %s, Eb/N0: %.3f dB\n", strtrim(rats(r)), limit_ebn0_db);
-    semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--', 'Color',colors(color_index));
+    semilogy(ones(1,2)*limit_ebn0_db, [1 1e-6], '--', 'Color',colors(color_index,:));
     BER = [];
     EbNo = [];
     base_increment = 0.1;
@@ -108,7 +108,7 @@ for r = R
     end
     
     EbN0_lowestBER = [EbN0_lowestBER EbNo(end)];
-    semilogy(EbNo, BER, 'Marker','x', 'Color', colors(color_index));
+    semilogy(EbNo, BER, 'Marker','x', 'Color', colors(color_index,:));
     fprintf("\n");
     fprintf("End at %.3f dB\n", EbNo(end));
     drawnow;
@@ -126,7 +126,7 @@ end
 coding_Gain =  uncoded_EbN0_lowestBER - EbN0_lowestBER;
 
 figure(Name="Coding Gain");
-scatter(R, coding_Gain,[], "filled", "o");
+scatter(R, coding_Gain,[],colors, "filled", "o");
 grid on;
 xlabel('Coding Rate');
 ylabel('Coding Gain [dB]');
@@ -140,7 +140,7 @@ BERin = berawgn(EbN0_lowestBER,'psk', M, 'nondiff');
 NCG = 20*log10(erfcinv(2*BERout)) - 20*log10(erfcinv(2*BERin)) + 10*log10(R);
 figure(Name="Net Coding Gain");
 
-scatter(R, NCG,[],jet(length(R)), "filled", "o");
+scatter(R, NCG,[],colors, "filled", "o");
 
 grid on;
 xlabel('Coding Rate');
@@ -155,7 +155,7 @@ fiber_att = 0.2; %dB/Km
 
 figure(Name="Optical reach increase")
 
-scatter(R, coding_Gain./fiber_att,[], "filled", "o");
+scatter(R, coding_Gain./fiber_att,[], colors, "filled", "o");
 grid on;
 xlabel('Coding Rate');
 ylabel('Reach increase [Km]');
