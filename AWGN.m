@@ -18,8 +18,12 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-BERout = 1e-5;
+BERout = 1e-6;
 
+
+
+% precision limit on snr increment
+precision = 1e-4;
 
 %% Transmission Limits
 % Uncoded BER
@@ -63,44 +67,53 @@ for r = R
     NumBlocks = ceil(Numbits/cfg_E.NumInformationBits);
     Numbits = cfg_E.NumInformationBits*NumBlocks;
 
+    % number of repetitions of the simulation for every r and snr
+    repetition = ceil(10/(Numbits*BERout));
+
     snr_db = limit_snr - 0.01;
 
     while(isempty(BER) || BER(end) > BERout)
-        fprintf(".");
+        Numerrors = 0;
 
-        limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));
-        
+        for iter = 1:repetition
+            fprintf(".");
+    
+            limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));
+            
+    
+            
+            bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks,"logical");
+            
+            %bitstosend = ones(Numbits,1);
+            max_iterations = 50;
+           
+            % Encoder LDPC
+            encoded_bits = ldpcEncode(bitstosend,cfg_E);
+            
+            % PSk Mod
+            PSK_mod = pskmod(encoded_bits,M,'InputType','bit');
+            
+            % AWGN Channel
+            NoisySignal = awgn(PSK_mod,snr_db);
+            
+            % PSK Demod
+            PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr','NoiseVariance',1/10^(snr_db/10));
+            
+            % Decoder LDPC
+            decoded_bits = ldpcDecode(PSK_demod,cfg_D,max_iterations,"DecisionType","soft");
+            
+            % Performance eval
+            
+            Numerrors = Numerrors + sum(bitstosend ~= (decoded_bits < 0),"all");
 
-        
-        bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks,"logical");
-        
-        %bitstosend = ones(Numbits,1);
-        max_iterations = 50;
-       
-        % Encoder LDPC
-        encoded_bits = ldpcEncode(bitstosend,cfg_E);
-        
-        % PSk Mod
-        PSK_mod = pskmod(encoded_bits,M,'InputType','bit');
-        
-        % AWGN Channel
-        NoisySignal = awgn(PSK_mod,snr_db);
-        
-        % PSK Demod
-        PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr','NoiseVariance',1/10^(snr_db/10));
-        
-        % Decoder LDPC
-        decoded_bits = ldpcDecode(PSK_demod,cfg_D,max_iterations,"DecisionType","soft");
-        
-        %% Performance eval
-        
-        Numerrors = sum(bitstosend ~= (decoded_bits < 0),"all");
-        if (Numerrors == 0 && base_increment >= 1e-5)
+        end
+
+        if (Numerrors == 0 && base_increment >= precision)
             snr_db = snr_db - base_increment;
             base_increment = base_increment/10;
             fprintf("\n");
         else
-            BER = [BER Numerrors/prod(size(bitstosend),'all')];
+            BER = [BER Numerrors/(prod(size(bitstosend),'all')*repetition)];
             EbNo = [EbNo limit_ebn0_db];
         end
         snr_db = snr_db + base_increment;
