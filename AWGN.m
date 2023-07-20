@@ -21,6 +21,9 @@ EbN0_lowestBER = [];
 BERout = 1e-6;
 
 
+discretize_signal = true;
+discrete_bits = 16;
+
 
 % precision limit on snr increment
 precision = 1e-4;
@@ -85,7 +88,7 @@ for r = R
             bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks,"logical");
             
             %bitstosend = ones(Numbits,1);
-            max_iterations = 50;
+            max_iterations = 20;
            
             % Encoder LDPC
             encoded_bits = ldpcEncode(bitstosend,cfg_E);
@@ -95,6 +98,16 @@ for r = R
             
             % AWGN Channel
             NoisySignal = awgn(PSK_mod,snr_db);
+
+            % Signal Discretisation
+            if(discretize_signal)
+                bins = linspace(-1-sqrt(snr_db), 1+sqrt(snr_db), 2^discrete_bits);
+
+                discrete_signal_real = interp1(bins, bins, real(NoisySignal), "nearest", "extrap");
+                discrete_signal_imag = interp1(bins, bins, imag(NoisySignal), "nearest", "extrap");
+                discrete_signal = complex(discrete_signal_real, discrete_signal_imag);
+                NoisySignal = discrete_signal;
+            end
             
             % PSK Demod
             PSK_demod = pskdemod(NoisySignal,M,'OutputType','llr','NoiseVariance',1/10^(snr_db/10));
