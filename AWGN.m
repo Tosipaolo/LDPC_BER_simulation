@@ -18,7 +18,7 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-BERout = 1e-6;
+BERout = 1e-4;
 
 
 discretize_signal = true;
@@ -81,9 +81,7 @@ for r = R
         for iter = 1:repetition
             fprintf(".");
     
-            limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));
-            
-    
+            limit_ebn0_db = snr_db - 10*log10(r) - 10*log10(log2(M));    
             
             bitstosend = randi([0 1],cfg_E.NumInformationBits,NumBlocks,"logical");
             
@@ -145,6 +143,14 @@ for r = R
     BERin = [BER Numerrors_in/prod(size(encoded_bits), 'all')]; %BERin number of errors in input at FEC decoder
 
 
+    file_name = strcat(string(datetime('now', 'Format', 'yyyy-MM-dd_HH-mm-ss')), '_BER@r=', num2str(r));
+    if(discretize_signal)
+        file_name = strcat(file_name, '_discrete@', num2str(discrete_bits), '_bits');
+    end
+    file_name = strcat(file_name, '.mat');
+    
+    [~, ~] = mkdir('saves');
+    save(fullfile('saves', file_name),"r","M","discretize_signal","discrete_bits","BERin","BERout","BER","EbNo","limit_snr","limit_ebn0_db", "uncoded_EbN0_lowestBER","EbN0_lowestBER");
 end
 
 %% Coding gain at Pe=1e-6
