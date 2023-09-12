@@ -2,7 +2,7 @@ clear;
 close all;
 
 %Rate range
-R = [ 5/6, 8/9];
+R = [1/2];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10. copy paste:
 %1/4 1/3 2/5 1/2 3/5 2/3 3/4 4/5 5/6 8/9 9/10
 
@@ -18,10 +18,10 @@ M = 4;
 ebn0_interval = -2:0.5:12;
 EbN0_lowestBER = [];
 
-BERout = 1e-4;
+BERout = 1e-6;
 
 
-discretize_signal = true;
+discretize_signal = false;
 discrete_bits = 16;
 
 

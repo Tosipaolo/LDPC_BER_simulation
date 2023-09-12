@@ -73,7 +73,7 @@ if (QAMsize==2) % BPSK
         C1(m)=1/2*(w(m)*(1/sqrt(pi))*log2(2/(1+exp(-2*(sqrt(2)*x(m)+SNRaffBPSK)*SNRaffBPSK)))+...
                        w(m)*(1/sqrt(pi))*log2(2/(1+exp( 2*(sqrt(2)*x(m)-SNRaffBPSK)*SNRaffBPSK))));
     end
-    InstCap = sum(C1)
+    InstCap = sum(C1)figure(Name = "prova")
 plot(C);
 elseif (QAMsize==4)||(QAMsize==16)||(QAMsize==64)||(QAMsize==8)||(QAMsize==32)
     for xindex = 1:QAMsize

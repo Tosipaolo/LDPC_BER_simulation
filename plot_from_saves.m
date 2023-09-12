@@ -11,7 +11,7 @@ M = 4;
 %% init plots
 Ber_axes = axes(figure("Name","BER"));
 
-semilogy(Ber_axes, ebn0_interval, berawgn(ebn0_interval, "psk", M, "nondiff"), "--", "Color","Black");
+semilogy(Ber_axes, ebn0_interval, berawgn(ebn0_interval, "psk", M, "nondiff"), "--", "Color","Black", "DisplayName","uncoded");
 hold(Ber_axes, "on");
 grid(Ber_axes, "on");
 
@@ -22,10 +22,12 @@ R = zeros(1,numel(files));
 for ii = 1:numel(files)
     file = string(files(ii));
     load(fullfile(path, file));
+    ber_string = ['BER @ r=' strtrim(rats(r))];
     semilogy(Ber_axes, EbNo, BER, 'Marker','x', 'Color', colors(ii,:));
     snr_interval = -6:0.1:10;
     [~, lower_bound_ebn0_db] = GetMaxCapacity(snr_interval, M, r);
-    semilogy(Ber_axes, ones(1,2)*lower_bound_ebn0_db, [1 1e-8], '--', 'Color',colors(ii,:));
+    shannon_bound_string = ['shannon limit @ r=' strtrim(rats(r))];
+    semilogy(Ber_axes, ones(1,2)*lower_bound_ebn0_db, [1 1e-8], '--', 'Color',colors(ii,:), 'DisplayName',shannon_bound_string);
 
     EbN0_lowest_BER(ii) = EbNo(end);
     R(ii) = r;
