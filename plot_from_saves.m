@@ -21,47 +21,79 @@ EbN0_lowest_BER = zeros(1,numel(files));
 R = zeros(1,numel(files));
 
 %% plot saved simulations
+count = 0;
+
 for ii = 1:numel(files)
+    
     file = string(files(ii));
     load(fullfile(path, file));
-    ber_string = ['BER @ r=' strtrim(rats(r))];
+    
+    [BER, index] = smoothOut(BER);
+    EbNo(index) = [];
+    BERin(index) = [];
+
+    ber_string = ['BER @ r=' strtrim(rats(r)) ' ' num2str(discrete_bits) ' bits quantization'];
     semilogy(Ber_axes, EbNo, BER, 'Marker','x', 'Color', colors(ii,:), 'DisplayName', ber_string);
     snr_interval = -6:0.1:10;
     [~, lower_bound_ebn0_db] = GetMaxCapacity(snr_interval, M, r);
-    shannon_bound_string = ['shannon limit @ r=' strtrim(rats(r))];
-    semilogy(Ber_axes, ones(1,2)*lower_bound_ebn0_db, [1 1e-8], '--', 'Color',colors(ii,:), 'DisplayName',shannon_bound_string);
+
+    if count == 0
+        shannon_bound_string = ['shannon limit @ r=' strtrim(rats(r))];
+        semilogy(Ber_axes, ones(1,2)*lower_bound_ebn0_db, [1 1e-8], '--', 'Color',colors(ii,:), 'DisplayName',shannon_bound_string);
+        
+    end
 
     EbN0_lowest_BER(ii) = EbNo(end);
     R(ii) = r;
+    count = count + 1;
 
 end
 legend
+xlabel('Eb/N0 [dB]')
+ylabel('BER')
 %% Coding gain at Pe=1e-6
 
 coding_Gain =  uncoded_EbN0_lowestBER - EbN0_lowest_BER;
 
+rate_legend = strtrim(rats(R'));
+
 figure(Name="Coding Gain");
-scatter(R, coding_Gain,[],colors, "filled", "o");
+title("Coding gain vs Code rate")
+
+for i= 1:numel(R)
+    hold on;
+    scatter(R(i), coding_Gain(i),[], colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
+end
+
+%scatter(R, coding_Gain,[],colors, "filled", "o");
 grid on;
 xlabel('Coding Rate');
 ylabel('Coding Gain [dB]');
 xlim([0 1]);
 ylim([4 9]);
+legend(rate_legend)
 
 %% Net Coding Gain
 
-BERin = berawgn(EbN0_lowestBER,'psk', M, 'nondiff');
+BERin = berawgn(EbN0_lowest_BER,'psk', M, 'nondiff');
 
 NCG = 20*log10(erfcinv(2*BERout)) - 20*log10(erfcinv(2*BERin)) + 10*log10(R);
 figure(Name="Net Coding Gain");
 
-scatter(R, NCG,[],colors, "filled", "o");
+for i= 1:numel(R)
+    hold on;
+    scatter(R(i), NCG(i),[], colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
+end
+
+%scatter(R, NCG,[],colors, "filled", "o");
 
 grid on;
+title("Net coding gain vs Code rate")
 xlabel('Coding Rate');
 ylabel('Net Coding Gain [dB]');
 xlim([0 1]);
 ylim([4 9]);
+legend(rate_legend)
 
 
 %% System Reach
@@ -69,10 +101,17 @@ ylim([4 9]);
 fiber_att = 0.2; %dB/Km
 
 figure(Name="Optical reach increase")
+title("Optical reach increase vs Code rate")
 
-scatter(R, coding_Gain./fiber_att,[], colors, "filled", "o");
+for i= 1:numel(R)
+    hold on;
+    scatter(R(i), (coding_Gain(i)/fiber_att),[], colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
+end
+
+%scatter(R, coding_Gain./fiber_att,[], colors, "filled", "o", 'SizeData',100);
 grid on;
 xlabel('Coding Rate');
 ylabel('Reach increase [Km]');
 xlim([0 1]);
 ylim([20 50]);
+legend(rate_legend)

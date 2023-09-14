@@ -22,7 +22,7 @@ BERout = 1e-6;
 
 
 discretize_signal = true;
-discrete_bits = 2;
+discrete_bits = 5;
 
 
 % precision limit on snr increment
