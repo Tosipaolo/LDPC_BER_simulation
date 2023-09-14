@@ -2,7 +2,7 @@ clear;
 close all;
 
 %Rate range
-R = [4/5, 8/9];
+R = [8/9];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10. copy paste:
 %1/4 *1/3 *2/5 *1/2 3/5 2/3 3/4 4/5 *5/6 *8/9 9/10
 
@@ -22,7 +22,7 @@ BERout = 1e-6;
 
 
 discretize_signal = true;
-discrete_bits = 2;
+discrete_bits = 16;
 
 
 % precision limit on snr increment
@@ -99,7 +99,7 @@ for r = R
 
             % Signal Discretisation
             if(discretize_signal)
-                bins = linspace(-1-sqrt((1/10^(snr_db/10))), 1+sqrt((1/10^(snr_db/10))), 2^discrete_bits);
+                bins = linspace(-1-sqrt((1/10*logsnr_db)), 1+sqrt(snr_db), 2^discrete_bits);
 
                 discrete_signal_real = interp1(bins, bins, real(NoisySignal), "nearest", "extrap");
                 discrete_signal_imag = interp1(bins, bins, imag(NoisySignal), "nearest", "extrap");
