@@ -2,7 +2,7 @@ clear;
 close all;
 
 %Rate range
-R = [4/5, 8/9];
+R = [8/9];
 % 1/4, 1/3, 2/5, 1/2, 3/5, 2/3, 3/4, 4/5, 5/6, 8/9, or 9/10. copy paste:
 %1/4 *1/3 *2/5 *1/2 3/5 2/3 3/4 4/5 *5/6 *8/9 9/10
 
@@ -12,7 +12,7 @@ colors = jet(length(R));
 
 % Modulation Constellation
 %   M = 2 -> BPSK
-M = 4;
+M = 8;
 
 % Range EB/N0
 ebn0_interval = -2:0.5:12;
@@ -21,7 +21,7 @@ EbN0_lowestBER = [];
 BERout = 1e-6;
 
 
-discretize_signal = true;
+discretize_signal = false;
 discrete_bits = 5;
 
 
