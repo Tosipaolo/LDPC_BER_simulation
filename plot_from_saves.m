@@ -45,7 +45,7 @@ for ii = 1:numel(files)
 
     EbN0_lowest_BER(ii) = EbNo(end);
     R(ii) = r;
-    count = count + 1;
+    %count = count + 1;
 
 end
 legend
