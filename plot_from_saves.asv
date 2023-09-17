@@ -67,7 +67,7 @@ rate_legend = strtrim(rats(R'));
 
 for i= 1:numel(R)
     hold on;
-    scatter(R(i), coding_Gain(i),100, colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
+    scatter(R(i), coding_Gain(i),[], colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
 end
 
 %scatter(R, coding_Gain,[],colors, "filled", "o");
@@ -89,7 +89,7 @@ figure(Name="Net Coding Gain");
 
 for i= 1:numel(R)
     hold on;
-    scatter(R(i), NCG(i),100, colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
+    scatter(R(i), NCG(i),[], colors(i,:), "filled", "o", 'DisplayName',rate_legend(i))
 end
 
 %scatter(R, NCG,[],colors, "filled", "o");
@@ -113,7 +113,7 @@ title("Optical reach increase vs Code rate")
 
 for i= 1:numel(R)
     hold on;
-    scatter(R(i), (coding_Gain(i)/fiber_att),100, colors(i,:), "filled", "o")
+    scatter(R(i), (coding_Gain(i)/fiber_att),[], colors(i,:), "filled", "o", )
 end
 
 %scatter(R, coding_Gain./fiber_att,[], colors, "filled", "o", 'SizeData',100);
