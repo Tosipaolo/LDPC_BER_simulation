@@ -33,7 +33,7 @@ for ii = 1:numel(files)
     EbNo(index) = [];
     BERin(index) = [];
 
-    ber_string = ['BER @ r=' strtrim(rats(r)) ' ' num2str(discrete_bits) ' bits quantization'];
+    ber_string = ['BER @ r=' strtrim(rats(r)) ' Q = ' num2str(discrete_bits)];
     semilogy(Ber_axes, EbNo, BER, 'Marker','x', 'Color', colors(ii,:), 'DisplayName', ber_string);
     snr_interval = -6:0.1:10;
     [~, lower_bound_ebn0_db] = GetMaxCapacity(snr_interval, M, r);
